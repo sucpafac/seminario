@@ -149,10 +149,11 @@
       overflow: hidden;
     }
 
-    .pdf-viewer iframe {
-      width: 100%;
-      height: 500px;
-      border: none;
+    .pdf-preview-placeholder {
+      text-align: center;
+      padding: 40px;
+      background: #f7fafc;
+      color: #4a5568;
     }
 
     .download-btn {
@@ -213,7 +214,6 @@
 </head>
 <body>
   <div class="container">
-    <img src="log_aaaes.png" alt="Logo AAAES" class="logo">
     <h1>Portal de Certificados</h1>
     <h2>Seminario Básico de Certificación Aeronáutica</h2>
     
@@ -247,11 +247,20 @@
     <div class="result-section success" id="successResult">
       <p class="success-message">✅ ¡Certificado encontrado!</p>
       <div class="pdf-viewer" id="pdfViewer">
-        <iframe id="pdfFrame" src="" title="Vista previa del certificado"></iframe>
+        <div id="pdfPreview">
+          <div style="padding: 40px; background: #f7fafc; border-radius: 8px; margin-bottom: 15px;">
+            <div style="font-size: 48px; margin-bottom: 10px;">📄</div>
+            <h3 style="margin: 0; color: #4a5568;">Vista Previa del Certificado</h3>
+            <p style="margin: 10px 0 0 0; color: #718096;">Certificado listo para descargar</p>
+          </div>
+        </div>
       </div>
       <a href="" class="download-btn" id="downloadLink" download>
         📥 Descargar Certificado
       </a>
+      <button onclick="abrirPDFVentana()" class="download-btn" style="background: linear-gradient(135deg, #4299e1 0%, #3182ce 100%); margin-left: 10px;">
+        👁️ Ver en Nueva Ventana
+      </button>
     </div>
 
     <div class="result-section error" id="errorResult">
@@ -266,9 +275,12 @@
       <p>Si el problema persiste, contacta al administrador.</p>
     </div>
 
+    <img src="log_aaaes.png" alt="Logo AAAES" class="logo">
   </div>
 
   <script>
+    let currentPdfUrl = '';
+
     async function buscarCertificado(event) {
       event.preventDefault();
       
@@ -278,7 +290,6 @@
       const loading = document.getElementById("loading");
       const successResult = document.getElementById("successResult");
       const errorResult = document.getElementById("errorResult");
-      const pdfFrame = document.getElementById("pdfFrame");
       const downloadLink = document.getElementById("downloadLink");
 
       // Ocultar resultados previos
@@ -292,6 +303,7 @@
 
       // Construir URL del certificado
       const pdfUrl = `https://raw.githubusercontent.com/sucpafac/seminario/main/${year}/${id}.pdf`;
+      currentPdfUrl = pdfUrl;
       
       try {
         // Verificar si el archivo existe
@@ -299,9 +311,22 @@
         
         if (response.ok) {
           // Archivo encontrado - mostrar éxito
-          pdfFrame.src = pdfUrl;
           downloadLink.href = pdfUrl;
           downloadLink.download = `Certificado_${id}_${year}.pdf`;
+          
+          // Mostrar información del PDF encontrado
+          const pdfPreview = document.getElementById("pdfPreview");
+          pdfPreview.innerHTML = `
+            <div style="padding: 40px; background: #f0fff4; border-radius: 8px; margin-bottom: 15px; border: 2px solid #68d391;">
+              <div style="font-size: 48px; margin-bottom: 10px;">📄</div>
+              <h3 style="margin: 0; color: #38a169;">Certificado Encontrado</h3>
+              <p style="margin: 10px 0 0 0; color: #2d3748;"><strong>Año:</strong> ${year}</p>
+              <p style="margin: 5px 0 0 0; color: #2d3748;"><strong>ID:</strong> ${id}</p>
+              <p style="margin: 10px 0 0 0; color: #718096; font-size: 14px;">
+                Haz clic en "Ver en Nueva Ventana" para visualizar el PDF o "Descargar" para guardarlo
+              </p>
+            </div>
+          `;
           
           successResult.style.display = "block";
           
@@ -332,6 +357,24 @@
       }
     }
 
+    function abrirPDFVentana() {
+      if (currentPdfUrl) {
+        // Abrir PDF en nueva ventana/pestaña
+        const ventana = window.open(currentPdfUrl, '_blank');
+        
+        // Fallback si el navegador bloquea pop-ups
+        if (!ventana) {
+          // Crear un enlace temporal y hacer clic en él
+          const link = document.createElement('a');
+          link.href = currentPdfUrl;
+          link.target = '_blank';
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        }
+      }
+    }
+
     // Limpiar resultados cuando se cambie el año o ID
     document.getElementById("year").addEventListener("change", limpiarResultados);
     document.getElementById("identificacion").addEventListener("input", limpiarResultados);
@@ -339,6 +382,7 @@
     function limpiarResultados() {
       document.getElementById("successResult").style.display = "none";
       document.getElementById("errorResult").style.display = "none";
+      currentPdfUrl = '';
     }
 
     // Permitir búsqueda con Enter en el campo de identificación
