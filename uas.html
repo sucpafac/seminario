@@ -1,0 +1,772 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Protocolo de Vuelo UAS para Inspección Aeronáutica</title>
+  <style>
+    :root {
+      --primary:#123b5d;
+      --secondary:#e8f1f8;
+      --accent:#d9ead3;
+      --warning:#fff4d6;
+      --danger:#fde2e2;
+      --text:#1f2937;
+      --muted:#6b7280;
+      --border:#cfd8e3;
+      --bg:#f4f6f8;
+    }
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: Arial, sans-serif;
+      line-height: 1.35;
+      font-size: 12px;
+    }
+    body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    header {
+      background-color: var(--primary);
+      color: white;
+      padding: 18px 20px;
+      text-align: center;
+      border-radius: 10px;
+    }
+    header h1 { margin: 0 0 6px; font-size: 22px; }
+    header p { margin: 0; font-size: 12px; opacity: .96; }
+    .toolbar {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: #ffffff;
+      border-bottom: 1px solid var(--border);
+      padding: 10px 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+    }
+    .toolbar .title {
+      color: var(--primary);
+      font-weight: bold;
+      font-size: 13px;
+    }
+    .btn {
+      background: var(--primary);
+      color: #fff;
+      border: none;
+      border-radius: 8px;
+      padding: 9px 14px;
+      font-size: 12px;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0,0,0,.12);
+    }
+    .btn:hover { opacity: .94; }
+    .container {
+      width: 100%;
+      max-width: 920px;
+      margin: 14px auto 28px;
+      padding: 0 10px;
+    }
+    .section {
+      background: white;
+      border-radius: 10px;
+      padding: 14px;
+      margin-bottom: 14px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.08);
+      border: 1px solid #e5e7eb;
+      page-break-inside: avoid;
+      break-inside: avoid;
+    }
+    h2 {
+      color: var(--primary);
+      border-bottom: 1px solid var(--border);
+      padding-bottom: 6px;
+      margin: 0 0 10px;
+      font-size: 16px;
+    }
+    h3 {
+      color: var(--primary);
+      margin: 14px 0 8px;
+      font-size: 13px;
+    }
+    h4 {
+      font-size: 12px;
+      margin: 0 0 6px;
+    }
+    .intro-box, .note-box, .risk-box {
+      padding: 10px 12px;
+      border-radius: 8px;
+      margin: 10px 0;
+      border: 1px solid var(--border);
+      page-break-inside: avoid;
+    }
+    .intro-box { background: var(--secondary); }
+    .note-box { background: var(--warning); }
+    .risk-box { background: var(--danger); }
+    .grid-2, .grid-3 {
+      display: grid;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .card {
+      background: #fafbfd;
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 10px;
+      page-break-inside: avoid;
+    }
+    ul {
+      margin: 6px 0 0 16px;
+      padding: 0;
+    }
+    li { margin-bottom: 4px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 8px;
+      font-size: 11px;
+      table-layout: fixed;
+      page-break-inside: auto;
+    }
+    th, td {
+      border: 1px solid var(--border);
+      padding: 6px 7px;
+      text-align: left;
+      vertical-align: top;
+      word-wrap: break-word;
+      overflow-wrap: anywhere;
+    }
+    th {
+      background-color: #dbeafe;
+      color: var(--primary);
+      font-size: 11px;
+    }
+    .checklist-item {
+      margin-bottom: 8px;
+      padding: 8px 10px;
+      background: #f9fafb;
+      border-left: 3px solid var(--primary);
+      border-radius: 6px;
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      page-break-inside: avoid;
+    }
+    .small { color: var(--muted); font-size: 11px; }
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 8px;
+      margin-top: 10px;
+    }
+    .flow div {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: #fafbfd;
+      padding: 10px;
+      text-align: center;
+      font-weight: bold;
+      color: var(--primary);
+      font-size: 11px;
+    }
+    .check-cell {
+      text-align: center;
+      width: 62px;
+      white-space: nowrap;
+    }
+    input[type="checkbox"] {
+      transform: scale(1.05);
+      cursor: pointer;
+      margin-top: 2px;
+    }
+    .signature-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .signature-box {
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 12px;
+      background: #fafbfd;
+      min-height: 155px;
+      page-break-inside: avoid;
+    }
+    .signature-line {
+      border-bottom: 1px solid #555;
+      margin-top: 36px;
+      margin-bottom: 8px;
+      height: 18px;
+    }
+    .field {
+      width: 100%;
+      padding: 6px 8px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      margin-top: 4px;
+      font-size: 11px;
+      background: #fff;
+    }
+    textarea.field {
+      min-height: 64px;
+      resize: vertical;
+    }
+    label { display:block; margin-top:6px; font-size:11px; }
+    footer {
+      text-align: center;
+      padding: 10px 8px 16px;
+      font-size: 10px;
+      color: var(--muted);
+    }
+    @page {
+      size: Letter portrait;
+      margin: 12mm 10mm 12mm 10mm;
+    }
+    @media print {
+      .toolbar, .btn { display: none !important; }
+      html, body { background: #fff; font-size: 10.5pt; }
+      .container {
+        max-width: none;
+        margin: 0;
+        padding: 0;
+      }
+      header {
+        border-radius: 0;
+        padding: 12px 14px;
+        margin-bottom: 8px;
+      }
+      header h1 { font-size: 18px; }
+      header p { font-size: 10.5px; }
+      .section {
+        box-shadow: none;
+        border: 1px solid #cfd8e3;
+        border-radius: 0;
+        padding: 10px;
+        margin-bottom: 8px;
+      }
+      .grid-2 { grid-template-columns: 1fr 1fr; }
+      .grid-3 { grid-template-columns: 1fr 1fr 1fr; }
+      .flow { grid-template-columns: 1fr 1fr 1fr 1fr; }
+      .signature-grid { grid-template-columns: 1fr 1fr 1fr; }
+      table { font-size: 9.5px; }
+      th, td { padding: 4px 5px; }
+      input, textarea {
+        border: 1px solid transparent;
+        padding: 2px 4px;
+        font-size: 9.5px;
+        background: transparent;
+      }
+      .field::placeholder { color: transparent; }
+      .section, .card, .checklist-item, .signature-box, .intro-box, .note-box, .risk-box {
+        break-inside: avoid;
+        page-break-inside: avoid;
+      }
+    }
+    @media (max-width: 900px) {
+      .grid-2, .grid-3, .flow, .signature-grid { grid-template-columns: 1fr; }
+      .container { padding: 0 8px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="toolbar">
+  <div class="title">Formato diligenciable del protocolo de vuelo UAS</div>
+  <button class="btn" onclick="window.print()">Descargar / Guardar en PDF</button>
+</div>
+
+<header>
+  <h1>Protocolo de Vuelo UAS para Inspección Aeronáutica</h1>
+  <p>Procedimiento profesional de preparación, ejecución y cierre de misiones de inspección con sensores RGB–IR, criterios SORA y verificación meteorológica con UAV Forecast</p>
+</header>
+
+<div class="container">
+
+  <div class="section">
+    <h2>1. Alcance, objetivo y criterios operacionales</h2>
+    <div class="intro-box">
+      Este protocolo establece el procedimiento integral para operaciones UAS orientadas a inspección aeronáutica de aeronaves en condición de retiro, con énfasis en seguridad operacional, calidad de captura, trazabilidad de la información, cumplimiento de mitigaciones SORA y preparación de insumos para el modelo de inteligencia artificial encargado de detectar defectos estructurales.
+    </div>
+    <div class="grid-3">
+      <div class="card">
+        <h4>Objetivo operativo</h4>
+        Obtener imágenes RGB y térmicas útiles, repetibles y trazables de fuselaje, alas, empenaje, superficies móviles, remaches, paneles, bordes de ataque, tren de aterrizaje y zonas de unión estructural.
+      </div>
+      <div class="card">
+        <h4>Tipo de operación</h4>
+        Operación VLOS, baja altura, baja velocidad, área controlada, con piloto remoto, observador visual e inspector técnico.
+      </div>
+      <div class="card">
+        <h4>Criterios base SORA</h4>
+        Delimitación del área, control de terceros, reducción de exposición en tierra, vigilancia del espacio aéreo, límites operacionales estrictos, procedimientos de contingencia y trazabilidad de vuelo.
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>2. Fase Prevuelo</h2>
+    <div class="note-box">
+      <strong>Criterios de aceptación prevuelo:</strong> solo se autoriza el despegue cuando todos los ítems críticos se encuentren conformes. Como referencia operacional para esta misión: viento sostenido ≤ 20 km/h, ráfagas ≤ 28 km/h, probabilidad de precipitación 0 % durante la ventana de vuelo, visibilidad suficiente para mantener VLOS permanente, fijación GNSS estable, baterías de vuelo ≥ 95 %, batería de control ≥ 70 %, temperatura de batería dentro de rango seguro del fabricante, tarjeta SD disponible ≥ 20 %, y ausencia de alertas críticas de IMU, brújula, propulsión, cámara o enlace C2.</div>
+    <p>La fase prevuelo integra la evaluación técnica del UAS, el análisis meteorológico, la preparación documental, la verificación del entorno, la validación de mitigaciones SORA y la configuración de la misión. Ningún vuelo debe iniciar sin el cierre satisfactorio de esta fase.</p>
+
+    <h3>2.1 Verificación documental y autorizaciones</h3>
+    <table>
+      <tr>
+        <th>Campo</th>
+        <th>Espacio de diligenciamiento</th>
+      </tr>
+      <tr><td>Número de misión</td><td><input class="field" type="text" placeholder="Ej. MUSEO-INSP-001"></td></tr>
+      <tr><td>Fecha</td><td><input class="field" type="text" placeholder="DD/MM/AAAA"></td></tr>
+      <tr><td>Lugar de operación</td><td><input class="field" type="text" placeholder="Museo Aeroespacial Colombiano"></td></tr>
+      <tr><td>Aeronave inspeccionada</td><td><input class="field" type="text" placeholder="Ej. T-90 Calima / C-130 / AC-47"></td></tr>
+      <tr><td>Piloto remoto 1</td><td><input class="field" type="text" placeholder="Nombre completo"></td></tr>
+      <tr><td>CIPU piloto 1</td><td><input class="field" type="text" placeholder="Código CIPU"></td></tr>
+      <tr><td>Piloto remoto 2</td><td><input class="field" type="text" placeholder="Nombre completo"></td></tr>
+      <tr><td>CIPU piloto 2</td><td><input class="field" type="text" placeholder="Código CIPU"></td></tr>
+      <tr><td>Observador visual</td><td><input class="field" type="text" placeholder="Nombre completo"></td></tr>
+      <tr><td>Inspector técnico</td><td><input class="field" type="text" placeholder="Nombre completo"></td></tr>
+    </table>
+
+    <div class="grid-2">
+    <div class="card">
+        <h4>Documentos y permisos</h4>
+        <ul>
+          <li>Confirmar autorización interna para la actividad de inspección.</li>
+          <li>Validar disponibilidad del área y coordinación con el Museo o autoridad responsable.</li>
+          <li>Confirmar que el vuelo corresponde al plan de inspección aprobado.</li>
+          <li>Revisar formato de misión, objetivos de captura y aeronave a inspeccionar.</li>
+          <li>Verificar que el piloto remoto y observador estén designados formalmente.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Revisión SORA previa</h4>
+        <ul>
+          <li>Verificar que el área permanezca dentro del volumen operacional definido.</li>
+          <li>Confirmar perímetro de exclusión y puntos de control de acceso.</li>
+          <li>Confirmar GRC residual asumido y condiciones que lo soportan.</li>
+          <li>Confirmar ARC bajo mediante revisión visual y coordinación local.</li>
+          <li>Revisar procedimientos de aborto, RTH y aterrizaje de emergencia.</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>2.2 Verificación meteorológica con UAV Forecast</h3>
+    <p>La evaluación meteorológica debe realizarse con UAV Forecast y, de ser posible, contrastarse con observación local en sitio. La decisión de vuelo debe basarse en la tendencia horaria y no solamente en una lectura puntual.</p>
+    <table>
+      <tr>
+        <th>Parámetro</th>
+        <th>Qué verificar</th>
+        <th>Criterio de aceptación</th>
+        <th>Dato tomado</th>
+        <th>Conforme</th>
+      </tr>
+      <tr>
+        <td>Velocidad del viento superficial</td>
+        <td>Valor promedio y variación por hora</td>
+        <td>≤ 20 km/h</td>
+        <td><input class="field" type="text" placeholder="Ej. 14 km/h"></td>
+        <td class="check-cell"><input type="checkbox"></td>
+      </tr>
+      <tr>
+        <td>Ráfagas</td>
+        <td>Picos de viento que afecten estabilidad o precisión</td>
+        <td>≤ 28 km/h</td>
+        <td><input class="field" type="text" placeholder="Ej. 22 km/h"></td>
+        <td class="check-cell"><input type="checkbox"></td>
+      </tr>
+      <tr>
+        <td>Precipitación</td>
+        <td>Probabilidad y ventana temporal</td>
+        <td>0 % en ventana de misión</td>
+        <td><input class="field" type="text" placeholder="Ej. 0 %"></td>
+        <td class="check-cell"><input type="checkbox"></td>
+      </tr>
+      <tr>
+        <td>Visibilidad</td>
+        <td>Capacidad de mantener VLOS</td>
+        <td>Adecuada para VLOS permanente</td>
+        <td><input class="field" type="text" placeholder="Ej. Buena / &gt;5 km"></td>
+        <td class="check-cell"><input type="checkbox"></td>
+      </tr>
+      <tr>
+        <td>Nubosidad e iluminación</td>
+        <td>Uniformidad lumínica para imágenes RGB y condiciones térmicas</td>
+        <td>Compatible con objetivo de captura</td>
+        <td><input class="field" type="text" placeholder="Ej. Parcial nublado"></td>
+        <td class="check-cell"><input type="checkbox"></td>
+      </tr>
+      <tr>
+        <td>Temperatura ambiente</td>
+        <td>Impacto en baterías y contraste térmico</td>
+        <td>Dentro del rango seguro del sistema</td>
+        <td><input class="field" type="text" placeholder="Ej. 18 °C"></td>
+        <td class="check-cell"><input type="checkbox"></td>
+      </tr>
+      <tr>
+        <td>Índice KP / GNSS</td>
+        <td>Disponibilidad y calidad de navegación satelital</td>
+        <td>Señal GNSS estable / sin alertas críticas</td>
+        <td><input class="field" type="text" placeholder="Ej. 14 satélites / KP 2"></td>
+        <td class="check-cell"><input type="checkbox"></td>
+      </tr>
+    </table>
+
+    <h3>2.3 Inspección técnica del UAS</h3>
+    <div class="grid-3">
+      <div class="card">
+        <h4>Estructura y propulsión</h4>
+        <ul>
+          <li>Estado de brazos, fuselaje y tren de aterrizaje.</li>
+          <li>Ausencia de grietas, deformaciones o tornillería floja.</li>
+          <li>Estado de hélices: fisuras, mellas, deformación, fijación y balance aparente.</li>
+          <li>Estado visual de motores: juego excesivo, suciedad, daño o ruido anormal.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Energía y almacenamiento</h4>
+        <ul>
+          <li>Carga de baterías de vuelo y control remoto.</li>
+          <li>Temperatura de baterías antes del despegue.</li>
+          <li>Número de ciclos, integridad física y ausencia de inflado.</li>
+          <li>Capacidad de memoria y estado de la tarjeta SD.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Sensores y navegación</h4>
+        <ul>
+          <li>Estado de IMU, brújula, GNSS y altímetro.</li>
+          <li>Verificación de sensores anticolisión, si aplica.</li>
+          <li>Calibración requerida o advertencias del sistema.</li>
+          <li>Confirmación de telemetría estable en tierra.</li>
+        </ul>
+      </div>
+    </div>
+
+    <table>
+      <tr>
+        <th>Ítem técnico</th>
+        <th>Criterio de aceptación</th>
+        <th>Dato tomado / observación</th>
+        <th>Conforme</th>
+      </tr>
+      <tr><td>Hélices</td><td>Sin fisuras, deformación ni daño visible</td><td><input class="field" type="text"></td><td class="check-cell"><input type="checkbox"></td></tr>
+      <tr><td>Motores</td><td>Sin ruido anormal, juego excesivo ni suciedad crítica</td><td><input class="field" type="text"></td><td class="check-cell"><input type="checkbox"></td></tr>
+      <tr><td>Batería de vuelo</td><td>≥ 95 % antes del despegue</td><td><input class="field" type="text" placeholder="Ej. 100 %"></td><td class="check-cell"><input type="checkbox"></td></tr>
+      <tr><td>Batería control remoto</td><td>≥ 70 %</td><td><input class="field" type="text" placeholder="Ej. 86 %"></td><td class="check-cell"><input type="checkbox"></td></tr>
+      <tr><td>Temperatura batería</td><td>Dentro del rango seguro del sistema</td><td><input class="field" type="text" placeholder="Ej. 29 °C"></td><td class="check-cell"><input type="checkbox"></td></tr>
+      <tr><td>Tarjeta SD</td><td>Espacio libre ≥ 20 %</td><td><input class="field" type="text" placeholder="Ej. 48 GB libres"></td><td class="check-cell"><input type="checkbox"></td></tr>
+      <tr><td>GNSS</td><td>Fijación estable y sin alertas críticas</td><td><input class="field" type="text" placeholder="Ej. 16 satélites"></td><td class="check-cell"><input type="checkbox"></td></tr>
+      <tr><td>IMU / Brújula</td><td>Sin alertas ni solicitud de calibración crítica</td><td><input class="field" type="text"></td><td class="check-cell"><input type="checkbox"></td></tr>
+      <tr><td>Telemetría</td><td>Enlace estable en tierra antes del vuelo</td><td><input class="field" type="text"></td><td class="check-cell"><input type="checkbox"></td></tr>
+    </table>
+
+    <h3>2.4 Verificación de carga útil y captura</h3>
+    <div class="grid-2">
+      <div class="card">
+        <h4>Cámara RGB</h4>
+        <ul>
+          <li>Limpieza de lente.</li>
+          <li>Resolución, formato y modo de captura correctos.</li>
+          <li>Balance de blancos, exposición, ISO y velocidad acordes a la misión.</li>
+          <li>Enfoque confirmado antes del despegue.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Cámara térmica / IR</h4>
+        <ul>
+          <li>Limpieza de lente térmica.</li>
+          <li>Verificación de paleta, rango, ganancia y modo radiométrico si aplica.</li>
+          <li>Comprobación de contraste térmico suficiente para la misión.</li>
+          <li>Prueba rápida de captura simultánea RGB–IR.</li>
+        </ul>
+      </div>
+    </div>
+    <table>
+      <tr>
+        <th>Ítem de captura</th>
+        <th>Criterio de aceptación</th>
+        <th>Dato tomado</th>
+        <th>Conforme</th>
+      </tr>
+      <tr><td>Lente RGB</td><td>Limpio, sin obstrucciones</td><td><input class="field" type="text"></td><td class="check-cell"><input type="checkbox"></td></tr>
+      <tr><td>Resolución RGB</td><td>Configurada según misión</td><td><input class="field" type="text" placeholder="Ej. 48 MP / JPG+RAW"></td><td class="check-cell"><input type="checkbox"></td></tr>
+      <tr><td>Exposición / ISO</td><td>Compatible con iluminación del entorno</td><td><input class="field" type="text"></td><td class="check-cell"><input type="checkbox"></td></tr>
+      <tr><td>Enfoque RGB</td><td>Nítido en prueba previa</td><td><input class="field" type="text"></td><td class="check-cell"><input type="checkbox"></td></tr>
+      <tr><td>Lente térmica</td><td>Limpio, sin obstrucciones</td><td><input class="field" type="text"></td><td class="check-cell"><input type="checkbox"></td></tr>
+      <tr><td>Paleta / rango térmico</td><td>Configurados según objetivo de inspección</td><td><input class="field" type="text" placeholder="Ej. White hot / Auto"></td><td class="check-cell"><input type="checkbox"></td></tr>
+      <tr><td>Contraste térmico</td><td>Suficiente para diferenciar zonas de interés</td><td><input class="field" type="text"></td><td class="check-cell"><input type="checkbox"></td></tr>
+      <tr><td>Captura simultánea RGB–IR</td><td>Prueba satisfactoria</td><td><input class="field" type="text"></td><td class="check-cell"><input type="checkbox"></td></tr>
+    </table>
+
+    <h3>2.5 Inspección del área y criterios de seguridad en tierra</h3>
+    <table>
+      <tr>
+        <th>Aspecto</th>
+        <th>Verificación requerida</th>
+        <th>Criterio de aceptación</th>
+        <th>Dato tomado</th>
+        <th>Conforme</th>
+      </tr>
+      <tr><td>Perímetro operacional</td><td>Delimitado, señalizado y libre de terceros no participantes</td><td>Implementado antes del despegue</td><td><input class="field" type="text"></td><td class="check-cell"><input type="checkbox"></td></tr>
+      <tr><td>Obstáculos</td><td>Identificación de postes, antenas, cableado, árboles, estructuras y superficies reflectivas</td><td>Todos identificados y mitigados</td><td><input class="field" type="text"></td><td class="check-cell"><input type="checkbox"></td></tr>
+      <tr><td>Zona de despegue/aterrizaje</td><td>Superficie estable, despejada y segura</td><td>Apta para operación</td><td><input class="field" type="text"></td><td class="check-cell"><input type="checkbox"></td></tr>
+      <tr><td>Ruta de vuelo</td><td>Definida sobre la aeronave o áreas seguras, minimizando exposición de terceros</td><td>Validada por piloto e inspector</td><td><input class="field" type="text"></td><td class="check-cell"><input type="checkbox"></td></tr>
+      <tr><td>Zonas de emergencia</td><td>Definidas para aterrizaje inmediato o recuperación segura</td><td>Identificadas antes del vuelo</td><td><input class="field" type="text"></td><td class="check-cell"><input type="checkbox"></td></tr>
+      <tr><td>Acceso de visitantes</td><td>Controlado o suspendido en el volumen de operación</td><td>Sin terceros expuestos</td><td><input class="field" type="text"></td><td class="check-cell"><input type="checkbox"></td></tr>
+      <tr><td>Espacio aéreo local</td><td>Observación previa y coordinación con responsable local si aplica</td><td>Sin conflicto aparente</td><td><input class="field" type="text"></td><td class="check-cell"><input type="checkbox"></td></tr>
+    </table>
+
+    <h3>2.6 Configuración final de misión</h3>
+    <div class="flow">
+      <div>Definir aeronave objetivo</div>
+      <div>Definir zonas estructurales</div>
+      <div>Configurar altura, velocidad y cámara</div>
+      <div>Validar RTH, límites y checklist final</div>
+    </div>
+
+    <div class="note-box">
+      <strong>Criterio de no despegue:</strong> la misión debe cancelarse o aplazarse si falla cualquier verificación crítica de batería, navegación, meteorología, control del área, carga útil, observador visual, perímetro SORA o trazabilidad documental.
+    </div>
+  </div>
+
+  <div class="section">
+    <h2>3. Fase Durante el Vuelo</h2>
+    <p>Durante el vuelo se prioriza la seguridad operacional, el control del volumen de operación, la calidad de la captura y la trazabilidad de los datos. Toda desviación debe ser registrada.</p>
+
+    <h3>3.1 Secuencia operativa</h3>
+    <table>
+      <tr>
+        <th>Etapa</th>
+        <th>Acción requerida</th>
+        <th>Criterio de control</th>
+      </tr>
+      <tr>
+        <td>Despegue</td>
+        <td>Ascenso controlado y verificación de estabilidad</td>
+        <td>Telemetría normal, GNSS estable, respuesta correcta a mandos</td>
+      </tr>
+      <tr>
+        <td>Transición a punto inicial</td>
+        <td>Ubicación del dron respecto a la aeronave inspeccionada</td>
+        <td>Sin invadir zonas no autorizadas</td>
+      </tr>
+      <tr>
+        <td>Captura de datos</td>
+        <td>Ejecución del patrón de vuelo y captura programada</td>
+        <td>Superposición, enfoque y encuadre adecuados</td>
+      </tr>
+      <tr>
+        <td>Supervisión continua</td>
+        <td>Monitoreo de entorno, baterías, señal y espacio aéreo</td>
+        <td>Aplicación de contingencias si se superan límites</td>
+      </tr>
+      <tr>
+        <td>Retorno y aterrizaje</td>
+        <td>Finalización segura de la misión</td>
+        <td>Aterrizaje controlado en zona definida</td>
+      </tr>
+    </table>
+
+    <h3>3.2 Parámetros a monitorear en tiempo real</h3>
+    <div class="grid-3">
+      <div class="card">
+        <h4>Vuelo y navegación</h4>
+        <ul>
+          <li>Altura AGL.</li>
+          <li>Velocidad horizontal y vertical.</li>
+          <li>Distancia al piloto.</li>
+          <li>Estado GNSS y brújula.</li>
+          <li>Orientación del dron y rumbo.</li>
+          <li>Estado de RTH.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Seguridad operacional</h4>
+        <ul>
+          <li>Intrusión de personas en el perímetro.</li>
+          <li>Aproximación de aeronaves tripuladas.</li>
+          <li>Cambios súbitos de viento o ráfagas.</li>
+          <li>Pérdida de señal C2.</li>
+          <li>Interferencia electromagnética o alertas del sistema.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Calidad de datos</h4>
+        <ul>
+          <li>Enfoque y exposición en RGB.</li>
+          <li>Contraste térmico y legibilidad en IR.</li>
+          <li>Cobertura completa de la zona de interés.</li>
+          <li>Correspondencia con plan de inspección.</li>
+          <li>Marcación de imágenes relevantes o anómalas.</li>
+        </ul>
+      </div>
+    </div>
+
+    <table>
+      <tr>
+        <th>Parámetro en vuelo</th>
+        <th>Criterio de aceptación</th>
+        <th>Dato tomado</th>
+        <th>Conforme</th>
+      </tr>
+      <tr><td>Altura AGL</td><td>Dentro del rango planificado de misión</td><td><input class="field" type="text" placeholder="Ej. 8–12 m"></td><td class="check-cell"><input type="checkbox"></td></tr>
+      <tr><td>Velocidad de operación</td><td>≤ 5 m/s durante captura de detalle</td><td><input class="field" type="text"></td><td class="check-cell"><input type="checkbox"></td></tr>
+      <tr><td>Distancia al piloto</td><td>Dentro del volumen operacional definido</td><td><input class="field" type="text"></td><td class="check-cell"><input type="checkbox"></td></tr>
+      <tr><td>Enlace C2</td><td>Estable, sin pérdidas críticas</td><td><input class="field" type="text"></td><td class="check-cell"><input type="checkbox"></td></tr>
+      <tr><td>GNSS / navegación</td><td>Estable durante toda la misión</td><td><input class="field" type="text"></td><td class="check-cell"><input type="checkbox"></td></tr>
+      <tr><td>Batería remanente mínima</td><td>Retorno antes del umbral crítico</td><td><input class="field" type="text" placeholder="Ej. 32 % al aterrizar"></td><td class="check-cell"><input type="checkbox"></td></tr>
+      <tr><td>Calidad RGB</td><td>Enfoque y exposición aceptables</td><td><input class="field" type="text"></td><td class="check-cell"><input type="checkbox"></td></tr>
+      <tr><td>Calidad IR</td><td>Contraste térmico utilizable</td><td><input class="field" type="text"></td><td class="check-cell"><input type="checkbox"></td></tr>
+    </table>
+
+    <h3>3.3 Reglas operacionales durante la misión</h3>
+    <div class="checklist-item"><input type="checkbox"><div><strong>Línea visual:</strong> el piloto remoto y el observador visual deben mantener VLOS permanente.</div></div>
+    <div class="checklist-item"><input type="checkbox"><div><strong>Límites de altura:</strong> mantener la altitud autorizada y el margen de separación respecto a la estructura inspeccionada.</div></div>
+    <div class="checklist-item"><input type="checkbox"><div><strong>Límites de velocidad:</strong> reducir velocidad durante pasadas de detalle, especialmente en uniones, bordes de ataque, remaches y paneles.</div></div>
+    <div class="checklist-item"><input type="checkbox"><div><strong>Control del perímetro:</strong> si ingresa un tercero, la misión debe suspenderse o ejecutarse aterrizaje inmediato.</div></div>
+    <div class="checklist-item"><input type="checkbox"><div><strong>Riesgo aéreo:</strong> ante cualquier aeronave cercana o sonido de aproximación, interrumpir la misión y descender/aterrizar según el procedimiento.</div></div>
+    <div class="checklist-item"><input type="checkbox"><div><strong>Integridad de captura:</strong> no continuar una misión si la información recolectada presenta desenfoque, saturación o pérdida de señal relevante sin corregirse.</div></div>
+
+    <h3>3.4 Registro de metadatos en vuelo</h3>
+    <p>Durante la operación deben conservarse o registrarse coordenadas GPS, altitud, orientación de la cámara, hora de captura, condiciones meteorológicas observadas, aeronave inspeccionada, zona estructural, piloto, observador, batería empleada y cualquier novedad de vuelo. Estos datos permiten trazabilidad del dataset y del hallazgo detectado posteriormente por el modelo.</p>
+
+    <h3>3.5 Criterios de aborto o suspensión de misión</h3>
+    <div class="risk-box">
+      <ul>
+        <li>Pérdida o degradación crítica del enlace C2.</li>
+        <li>Batería en umbral crítico o caída acelerada de autonomía.</li>
+        <li>Ingreso de terceros al área de seguridad.</li>
+        <li>Presencia de aeronave tripulada en cercanía operativa.</li>
+        <li>Viento o ráfagas por encima de lo aceptable.</li>
+        <li>Pérdida de GNSS o comportamiento anómalo del dron.</li>
+        <li>Falla de cámara, gimbal, sensor térmico o telemetría.</li>
+      </ul>
+    </div>
+
+  <div class="section">
+    <h2>4. Fase Post Vuelo</h2>
+    <p>El cierre de la misión debe garantizar la integridad del UAS, la descarga segura de la información, la clasificación inicial de datos y la consolidación documental del vuelo.</p>
+
+    <h3>4.1 Cierre operativo inmediato</h3>
+    <div class="grid-2">
+      <div class="card">
+        <h4>Después del aterrizaje</h4>
+        <ul>
+          <li>Apagar motores y asegurar el área.</li>
+          <li>Verificar temperatura de baterías y estado físico del UAS.</li>
+          <li>Registrar hora de fin de misión y batería remanente.</li>
+          <li>Anotar incidentes, alertas o desviaciones ocurridas.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h4>Inspección técnica post vuelo</h4>
+        <ul>
+          <li>Revisar hélices, motores, tren y carcasa.</li>
+          <li>Verificar integridad de cámara RGB e IR.</li>
+          <li>Revisar conectores, cableado y almacenamiento.</li>
+          <li>Registrar novedad técnica si se identifica daño o desgaste.</li>
+        </ul>
+      </div>
+    </div>
+
+    <h3>4.2 Descarga, respaldo y organización de información</h3>
+    <table>
+      <tr>
+        <th>Actividad</th>
+        <th>Detalle</th>
+        <th>Criterio de aceptación</th>
+        <th>Dato tomado</th>
+        <th>Conforme</th>
+      </tr>
+      <tr><td>Descarga de datos</td><td>Copiar imágenes RGB, imágenes térmicas, videos, capturas de pantalla y registros de vuelo</td><td>100 % de archivos transferidos</td><td><input class="field" type="text"></td><td class="check-cell"><input type="checkbox"></td></tr>
+      <tr><td>Verificación de integridad</td><td>Comprobar que los archivos abren correctamente y coinciden con la misión ejecutada</td><td>Sin archivos corruptos o faltantes</td><td><input class="field" type="text"></td><td class="check-cell"><input type="checkbox"></td></tr>
+      <tr><td>Organización</td><td>Clasificar por fecha, aeronave, zona estructural, tipo de sensor y sesión</td><td>Estructura documental completa</td><td><input class="field" type="text"></td><td class="check-cell"><input type="checkbox"></td></tr>
+      <tr><td>Respaldo</td><td>Crear copia en repositorio principal y respaldo secundario</td><td>Dos copias verificadas</td><td><input class="field" type="text"></td><td class="check-cell"><input type="checkbox"></td></tr>
+      <tr><td>Trazabilidad</td><td>Asociar datos con piloto, vuelo, batería, condiciones meteorológicas y formato de misión</td><td>Registro completo</td><td><input class="field" type="text"></td><td class="check-cell"><input type="checkbox"></td></tr>
+    </table>
+
+    <h3>4.3 Procesamiento y consolidación de hallazgos</h3>
+    <div class="checklist-item"><input type="checkbox"><div><strong>Preclasificación:</strong> separar imágenes útiles, borrosas, redundantes o no conformes.</div></div>
+    <div class="checklist-item"><input type="checkbox"><div><strong>Ejecución del modelo IA:</strong> correr inferencia sobre imágenes o flujo de video para identificar defectos estructurales.</div></div>
+    <div class="checklist-item"><input type="checkbox"><div><strong>Validación técnica:</strong> revisar si las detecciones son coherentes con la zona inspeccionada y con la taxonomía definida.</div></div>
+    <div class="checklist-item"><input type="checkbox"><div><strong>Registro de hallazgos:</strong> completar el formato de registro y consolidación de hallazgos con evidencia original y procesada por el modelo.</div></div>
+    <div class="checklist-item"><input type="checkbox"><div><strong>Priorización:</strong> clasificar daño, criticidad, posible origen, reparabilidad y acción recomendada.</div></div>
+
+    <h3>4.4 Informe y cierre administrativo</h3>
+    <p>Al finalizar, se debe emitir un resumen de misión con objetivos cumplidos, cobertura lograda, dificultades presentadas, cantidad de imágenes útiles, cantidad de detecciones relevantes y observaciones para la siguiente campaña. Este informe soporta la mejora continua del protocolo y fortalece la trazabilidad de la investigación.</p>
+  </div>
+
+  <div class="section">
+    <h2>5. Matriz profesional de verificación por fases</h2>
+    <table>
+      <tr>
+        <th>Fase</th>
+        <th>Ítem de verificación</th>
+        <th>Criterio</th>
+        <th>Ejecutado</th>
+        <th>Observación</th>
+      </tr>
+      <tr><td>Prevuelo</td><td>Autorización, área y coordinación</td><td>Confirmadas</td><td class="check-cell"><input type="checkbox"></td><td><input class="field" type="text"></td></tr>
+      <tr><td>Prevuelo</td><td>UAV Forecast revisado</td><td>Condiciones aptas</td><td class="check-cell"><input type="checkbox"></td><td><input class="field" type="text"></td></tr>
+      <tr><td>Prevuelo</td><td>Perímetro y control de terceros</td><td>Implementado</td><td class="check-cell"><input type="checkbox"></td><td><input class="field" type="text"></td></tr>
+      <tr><td>Prevuelo</td><td>Estructura, propulsión y baterías</td><td>Sin novedades</td><td class="check-cell"><input type="checkbox"></td><td><input class="field" type="text"></td></tr>
+      <tr><td>Prevuelo</td><td>Cámaras RGB–IR configuradas</td><td>Operativas</td><td class="check-cell"><input type="checkbox"></td><td><input class="field" type="text"></td></tr>
+      <tr><td>Prevuelo</td><td>RTH, límites y sensores</td><td>Configurados / normales</td><td class="check-cell"><input type="checkbox"></td><td><input class="field" type="text"></td></tr>
+      <tr><td>Durante el vuelo</td><td>VLOS y observador visual</td><td>Permanente</td><td class="check-cell"><input type="checkbox"></td><td><input class="field" type="text"></td></tr>
+      <tr><td>Durante el vuelo</td><td>Altura y velocidad</td><td>Dentro de límites</td><td class="check-cell"><input type="checkbox"></td><td><input class="field" type="text"></td></tr>
+      <tr><td>Durante el vuelo</td><td>Calidad de captura</td><td>Aceptable</td><td class="check-cell"><input type="checkbox"></td><td><input class="field" type="text"></td></tr>
+      <tr><td>Durante el vuelo</td><td>Riesgo aéreo y terceros</td><td>Sin conflicto</td><td class="check-cell"><input type="checkbox"></td><td><input class="field" type="text"></td></tr>
+      <tr><td>Post vuelo</td><td>Inspección técnica del UAS</td><td>Sin daño</td><td class="check-cell"><input type="checkbox"></td><td><input class="field" type="text"></td></tr>
+      <tr><td>Post vuelo</td><td>Descarga y respaldo</td><td>Completos</td><td class="check-cell"><input type="checkbox"></td><td><input class="field" type="text"></td></tr>
+      <tr><td>Post vuelo</td><td>Procesamiento del modelo IA</td><td>Ejecutado</td><td class="check-cell"><input type="checkbox"></td><td><input class="field" type="text"></td></tr>
+      <tr><td>Post vuelo</td><td>Formato de hallazgos</td><td>Diligenciado</td><td class="check-cell"><input type="checkbox"></td><td><input class="field" type="text"></td></tr>
+      <tr><td>Post vuelo</td><td>Informe de misión</td><td>Emitido</td><td class="check-cell"><input type="checkbox"></td><td><input class="field" type="text"></td></tr>
+    </table>
+
+    <h3>5.1 Espacio para firmas y aprobación</h3>
+    <div class="signature-grid">
+      <div class="signature-box">
+        <strong>Piloto remoto</strong>
+        <div class="signature-line"></div>
+        <label>Nombre</label>
+        <input class="field" type="text" placeholder="Nombre completo">
+        <label>Cargo / CIPU</label>
+        <input class="field" type="text" placeholder="Cargo o CIPU del piloto">
+        <label>Fecha</label>
+        <input class="field" type="text" placeholder="DD/MM/AAAA">
+      </div>
+      <div class="signature-box">
+        <strong>Observador visual / Inspector técnico</strong>
+        <div class="signature-line"></div>
+        <label>Nombre</label>
+        <input class="field" type="text" placeholder="Nombre completo">
+        <label>Cargo</label>
+        <input class="field" type="text" placeholder="Cargo o rol en la misión">
+        <label>Fecha</label>
+        <input class="field" type="text" placeholder="DD/MM/AAAA">
+      </div>
+      <div class="signature-box">
+        <strong>Revisión / Aprobación</strong>
+        <div class="signature-line"></div>
+        <label>Nombre</label>
+        <input class="field" type="text" placeholder="Nombre completo">
+        <label>Dependencia</label>
+        <input class="field" type="text" placeholder="Unidad / dependencia">
+        <label>Observaciones finales</label>
+        <textarea class="field" placeholder="Observaciones, restricciones o aprobación de cierre"></textarea>
+      </div>
+    </div>
+  </div>
+
+<footer>
+  Protocolo profesional de vuelo UAS para inspección aeronáutica con integración de criterios SORA, verificación meteorológica con UAV Forecast y trazabilidad operativa de datos RGB–IR.
+</footer>
+
+</body>
+</html>
