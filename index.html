@@ -1,352 +1,645 @@
-<!--https://sucpafac.github.io/seminario/-->
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Portal de Certificados - Seminario Básico de Certificación Aeronáutica</title>
+  <title>Portal de Certificados – Seminario Básico de Certificación Aeronáutica</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
-    * {
-      box-sizing: border-box;
+    :root {
+      --navy:       #07111f;
+      --navy-mid:   #0d1e33;
+      --panel:      #111d2e;
+      --border:     #1e3a5f;
+      --accent:     #0ea5e9;
+      --accent-dim: #0369a1;
+      --green:      #22c55e;
+      --red:        #ef4444;
+      --amber:      #f59e0b;
+      --text:       #e2e8f0;
+      --text-dim:   #94a3b8;
+      --mono:       'Share Tech Mono', monospace;
+      --head:       'Rajdhani', sans-serif;
+      --body:       'Source Sans 3', sans-serif;
     }
 
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      margin: 0;
-      padding: 20px;
+      font-family: var(--body);
+      background-color: var(--navy);
+      color: var(--text);
       min-height: 100vh;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 24px 16px 48px;
+      background-image:
+        radial-gradient(ellipse 80% 60% at 50% -10%, rgba(14,165,233,0.12) 0%, transparent 70%),
+        repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(30,58,95,0.3) 40px),
+        repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(30,58,95,0.3) 40px);
+    }
+
+    /* ── Header ── */
+    .site-header {
+      width: 100%;
+      max-width: 680px;
+      text-align: center;
+      margin-bottom: 32px;
+      animation: fadeDown 0.6s ease both;
+    }
+
+    .logo-wrap {
       display: flex;
       align-items: center;
       justify-content: center;
+      gap: 16px;
+      margin-bottom: 20px;
     }
 
-    .container {
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      max-width: 800px;
-      width: 100%;
-      padding: 40px;
-      border-radius: 20px;
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1);
-      text-align: center;
+    .logo-wrap img {
+      height: 64px;
+      width: auto;
+      filter: brightness(0) invert(1);
+      opacity: 0.9;
     }
 
-    h1 {
-      font-size: 28px;
-      color: #4a5568;
-      margin-bottom: 10px;
+    .site-title {
+      font-family: var(--head);
+      font-size: clamp(22px, 5vw, 32px);
       font-weight: 700;
+      letter-spacing: 0.08em;
+      color: #fff;
+      line-height: 1.15;
     }
 
-    h2 {
-      font-size: 22px;
-      color: #667eea;
-      margin-bottom: 30px;
-      font-weight: 500;
+    .site-sub {
+      font-family: var(--mono);
+      font-size: clamp(10px, 2.5vw, 13px);
+      color: var(--accent);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      margin-top: 6px;
     }
 
-    .form-group {
-      margin-bottom: 25px;
-      text-align: left;
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin: 20px 0;
+    }
+    .divider::before, .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(to right, transparent, var(--border), transparent);
+    }
+    .divider-icon {
+      font-size: 18px;
+      opacity: 0.6;
+    }
+
+    /* ── Card ── */
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      width: 100%;
+      max-width: 680px;
+      padding: clamp(24px, 5vw, 40px);
+      box-shadow:
+        0 0 0 1px rgba(14,165,233,0.06),
+        0 20px 60px rgba(0,0,0,0.5),
+        inset 0 1px 0 rgba(255,255,255,0.04);
+      position: relative;
+      animation: fadeUp 0.7s ease both;
+    }
+
+    /* Corner brackets */
+    .card::before, .card::after {
+      content: '';
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      border-color: var(--accent);
+      border-style: solid;
+      opacity: 0.5;
+    }
+    .card::before { top: 8px; left: 8px; border-width: 2px 0 0 2px; }
+    .card::after  { bottom: 8px; right: 8px; border-width: 0 2px 2px 0; }
+
+    /* ── Form elements ── */
+    .field-group {
+      margin-bottom: 22px;
     }
 
     label {
-      display: block;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
       margin-bottom: 8px;
-      font-weight: 600;
-      color: #4a5568;
-      font-size: 14px;
     }
 
-    select, input {
+    label .label-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      border: 1px solid var(--accent);
+      border-radius: 50%;
+      font-size: 10px;
+      color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    select, input[type="text"] {
       width: 100%;
-      padding: 15px;
-      font-size: 16px;
-      border: 2px solid #e2e8f0;
-      border-radius: 10px;
-      background-color: white;
-      transition: all 0.3s ease;
-    }
-
-    select:focus, input:focus {
+      padding: 13px 16px;
+      font-family: var(--mono);
+      font-size: 15px;
+      color: var(--text);
+      background: var(--navy-mid);
+      border: 1px solid var(--border);
+      border-radius: 3px;
       outline: none;
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+      transition: border-color 0.2s, box-shadow 0.2s;
+      appearance: none;
+      -webkit-appearance: none;
     }
 
-    .search-btn {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
-      border: none;
-      padding: 15px 30px;
-      font-size: 16px;
-      font-weight: 600;
-      border-radius: 10px;
+    select {
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%230ea5e9' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 16px center;
+      padding-right: 40px;
       cursor: pointer;
-      transition: all 0.3s ease;
-      margin-top: 10px;
+    }
+
+    select:focus, input[type="text"]:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(14,165,233,0.12);
+    }
+
+    select option {
+      background: var(--panel);
+      color: var(--text);
+    }
+
+    input[type="text"]::placeholder {
+      color: #3d5269;
+      font-family: var(--mono);
+    }
+
+    /* ── Status strip ── */
+    .status-strip {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: var(--text-dim);
+      margin-top: -12px;
+      margin-bottom: 22px;
+    }
+    .status-dot {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--text-dim);
+      flex-shrink: 0;
+    }
+    .status-dot.loading-dot {
+      background: var(--amber);
+      animation: pulse 1s ease infinite;
+    }
+    .status-dot.ok   { background: var(--green); }
+    .status-dot.fail { background: var(--red); }
+
+    /* ── Submit button ── */
+    .submit-btn {
       width: 100%;
+      padding: 14px;
+      font-family: var(--head);
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: #fff;
+      background: linear-gradient(135deg, #0369a1, #0ea5e9 60%, #38bdf8);
+      border: none;
+      border-radius: 3px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: opacity 0.2s, transform 0.15s;
     }
 
-    .search-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(102, 126, 234, 0.3);
+    .submit-btn::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, rgba(255,255,255,0.08), transparent);
+      pointer-events: none;
     }
 
-    .search-btn:active {
-      transform: translateY(0);
+    .submit-btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 24px rgba(14,165,233,0.35);
     }
+    .submit-btn:active:not(:disabled) { transform: translateY(0); }
 
-    .search-btn:disabled {
-      background: #a0aec0;
+    .submit-btn:disabled {
+      opacity: 0.4;
       cursor: not-allowed;
       transform: none;
       box-shadow: none;
     }
 
-    .loading {
+    /* ── Loading ── */
+    .loading-bar {
       display: none;
-      margin: 20px 0;
-    }
-
-    .spinner {
-      width: 40px;
-      height: 40px;
-      border: 4px solid #f3f4f6;
-      border-top: 4px solid #667eea;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-      margin: 0 auto;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-
-    .result-section {
-      margin-top: 30px;
-      padding: 20px;
-      border-radius: 10px;
-      display: none;
-    }
-
-    .success {
-      background-color: #f0fff4;
-      border: 2px solid #68d391;
-    }
-
-    .error {
-      background-color: #fed7d7;
-      border: 2px solid #fc8181;
-    }
-
-    .pdf-viewer {
-      margin-top: 20px;
-      border: 2px solid #e2e8f0;
-      border-radius: 10px;
+      height: 2px;
+      background: var(--border);
+      border-radius: 2px;
+      margin-top: 16px;
       overflow: hidden;
     }
+    .loading-bar.visible { display: block; }
+    .loading-bar-fill {
+      height: 100%;
+      width: 40%;
+      background: var(--accent);
+      border-radius: 2px;
+      animation: slide 1.2s ease infinite;
+    }
 
-    .pdf-viewer iframe {
+    /* ── Result sections ── */
+    .result {
+      display: none;
+      margin-top: 28px;
+      border-radius: 3px;
+      overflow: hidden;
+      border: 1px solid transparent;
+      animation: fadeUp 0.4s ease;
+    }
+
+    .result-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 18px;
+      font-family: var(--head);
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 0.06em;
+    }
+
+    .result-body {
+      padding: 18px;
+    }
+
+    /* Success */
+    .result.success {
+      border-color: rgba(34,197,94,0.3);
+      background: rgba(34,197,94,0.04);
+    }
+    .result.success .result-header {
+      background: rgba(34,197,94,0.1);
+      color: var(--green);
+      border-bottom: 1px solid rgba(34,197,94,0.2);
+    }
+
+    /* Error */
+    .result.error {
+      border-color: rgba(239,68,68,0.3);
+      background: rgba(239,68,68,0.04);
+    }
+    .result.error .result-header {
+      background: rgba(239,68,68,0.1);
+      color: var(--red);
+      border-bottom: 1px solid rgba(239,68,68,0.2);
+    }
+
+    /* ── PDF viewer ── */
+    .pdf-wrap {
+      border: 1px solid var(--border);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-bottom: 14px;
+    }
+
+    .pdf-wrap iframe {
       width: 100%;
-      height: 500px;
+      height: clamp(300px, 55vw, 500px);
+      display: block;
       border: none;
+      background: #1a1a2e;
     }
 
     .download-btn {
-      background: linear-gradient(135deg, #48bb78 0%, #38a169 100%);
-      color: white;
-      border: none;
-      padding: 12px 25px;
-      font-size: 16px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 22px;
+      font-family: var(--head);
+      font-size: 15px;
       font-weight: 600;
-      border-radius: 8px;
-      cursor: pointer;
+      letter-spacing: 0.08em;
+      color: #fff;
+      background: linear-gradient(135deg, #15803d, #22c55e);
+      border-radius: 3px;
       text-decoration: none;
-      display: inline-block;
-      margin-top: 15px;
-      transition: all 0.3s ease;
+      transition: transform 0.15s, box-shadow 0.15s;
     }
-
     .download-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 8px 25px rgba(72, 187, 120, 0.3);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 20px rgba(34,197,94,0.3);
     }
 
-    .logo {
-      margin-top: 30px;
-      max-width: 200px;
-      height: auto;
-      opacity: 0.8;
+    .error-list {
+      list-style: none;
+      margin-top: 10px;
+    }
+    .error-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+      padding: 6px 0;
+      font-size: 14px;
+      color: var(--text-dim);
+      border-bottom: 1px solid rgba(239,68,68,0.1);
+    }
+    .error-list li:last-child { border-bottom: none; }
+    .error-list li::before {
+      content: '›';
+      color: var(--red);
+      flex-shrink: 0;
+      margin-top: 1px;
     }
 
-    .error-message {
-      color: #e53e3e;
-      font-weight: 600;
+    /* ── Footer ── */
+    .site-footer {
+      margin-top: 32px;
+      font-family: var(--mono);
+      font-size: 11px;
+      color: #2d4a63;
+      letter-spacing: 0.1em;
+      text-align: center;
+      animation: fadeUp 0.9s ease both;
     }
 
-    .success-message {
-      color: #38a169;
-      font-weight: 600;
-    }
-
-    @media (max-width: 600px) {
-      .container {
-        padding: 25px;
-      }
-      
-      h1 {
-        font-size: 24px;
-      }
-      
-      h2 {
-        font-size: 18px;
-      }
-      
-      .pdf-viewer iframe {
-        height: 400px;
-      }
-    }
+    /* ── Animations ── */
+    @keyframes fadeUp   { from { opacity:0; transform:translateY(12px) } to { opacity:1; transform:none } }
+    @keyframes fadeDown { from { opacity:0; transform:translateY(-10px) } to { opacity:1; transform:none } }
+    @keyframes slide    { 0%{ transform:translateX(-100%) } 100%{ transform:translateX(300%) } }
+    @keyframes pulse    { 0%,100%{ opacity:1 } 50%{ opacity:0.3 } }
   </style>
 </head>
 <body>
-  <div class="container">
-    <img src="log_aaaes.png" alt="Logo AAAES" class="logo">
-    <h1>Portal de Certificados</h1>
-    <h2>Seminario Básico de Certificación Aeronáutica</h2>
-    
-    <form onsubmit="buscarCertificado(event)">
-      <div class="form-group">
-        <label for="year">Año del seminario:</label>
+
+  <header class="site-header">
+    <div class="logo-wrap">
+      <img src="log_aaaes.png" alt="Logo AAAES" onerror="this.style.display='none'">
+      <div>
+        <div class="site-title">PORTAL DE CERTIFICADOS</div>
+        <div class="site-sub">Seminario Básico de Certificación Aeronáutica</div>
+      </div>
+    </div>
+    <div class="divider"><span class="divider-icon">✈</span></div>
+  </header>
+
+  <main class="card">
+
+    <form id="certForm" onsubmit="buscarCertificado(event)" novalidate>
+
+      <!-- Year -->
+      <div class="field-group">
+        <label for="year">
+          <span class="label-num">01</span>
+          Año del Seminario
+        </label>
         <select id="year" required>
-          <option value="">Selecciona un año</option>
-          <option value="2024">2024</option>
-          <option value="2025" selected>2025</option>
-          <option value="2026">2026</option>
-          <option value="2027">2027</option>
+          <option value="">— Cargando años disponibles… —</option>
         </select>
       </div>
 
-      <div class="form-group">
-        <label for="identificacion">Número de identificación:</label>
-        <input type="text" id="identificacion" placeholder="Ej: 123456789" required>
+      <!-- Status strip for year load -->
+      <div class="status-strip" id="yearStatus">
+        <span class="status-dot loading-dot" id="yearDot"></span>
+        <span id="yearMsg">Consultando repositorio…</span>
       </div>
 
-      <button type="submit" class="search-btn" id="searchBtn">
-        Buscar Certificado
+      <!-- ID -->
+      <div class="field-group">
+        <label for="identificacion">
+          <span class="label-num">02</span>
+          Número de Identificación
+        </label>
+        <input type="text" id="identificacion"
+               placeholder="Ej: 1234567890"
+               inputmode="numeric"
+               autocomplete="off"
+               required>
+      </div>
+
+      <button type="submit" class="submit-btn" id="searchBtn" disabled>
+        &#9654;&nbsp;&nbsp;Buscar Certificado
       </button>
     </form>
 
-    <div class="loading" id="loading">
-      <div class="spinner"></div>
-      <p>Buscando certificado...</p>
+    <!-- Loading bar -->
+    <div class="loading-bar" id="loadingBar">
+      <div class="loading-bar-fill"></div>
     </div>
 
-    <div class="result-section success" id="successResult">
-      <p class="success-message">✅ ¡Certificado encontrado!</p>
-      <div class="pdf-viewer" id="pdfViewer">
-        <iframe id="pdfFrame" src="" title="Vista previa del certificado"></iframe>
+    <!-- Success result -->
+    <div class="result success" id="successResult">
+      <div class="result-header">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+        Certificado Encontrado
       </div>
-      <a href="" class="download-btn" id="downloadLink" download>
-        📥 Descargar Certificado
-      </a>
+      <div class="result-body">
+        <div class="pdf-wrap">
+          <iframe id="pdfFrame" src="" title="Vista previa del certificado"></iframe>
+        </div>
+        <a href="" class="download-btn" id="downloadLink" download>
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+          Descargar Certificado
+        </a>
+      </div>
     </div>
 
-    <div class="result-section error" id="errorResult">
-      <p class="error-message">❌ Certificado no encontrado</p>
-      <p>No se pudo encontrar el certificado para el número de identificación y año especificados.</p>
-      <p><strong>Por favor verifica:</strong></p>
-      <ul style="text-align: left; margin: 15px 0; padding-left: 20px;">
-        <li>Que el número de identificación sea correcto</li>
-        <li>Que hayas seleccionado el año correcto</li>
-        <li>Que hayas completado el seminario en el año seleccionado</li>
-      </ul>
-      <p>Si el problema persiste, contacta al administrador.</p>
+    <!-- Error result -->
+    <div class="result error" id="errorResult">
+      <div class="result-header">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+        Certificado No Encontrado
+      </div>
+      <div class="result-body">
+        <p style="font-size:14px;color:var(--text-dim);margin-bottom:10px;">
+          No se encontró un certificado para los datos ingresados. Verifica:
+        </p>
+        <ul class="error-list">
+          <li>Que el número de identificación sea correcto</li>
+          <li>Que hayas seleccionado el año correcto</li>
+          <li>Que hayas completado el seminario en el año seleccionado</li>
+          <li>Si el problema persiste, contacta al administrador</li>
+        </ul>
+      </div>
     </div>
 
-  </div>
+  </main>
+
+  <footer class="site-footer">
+    AAAES &nbsp;·&nbsp; CERTIFICACIÓN AERONÁUTICA &nbsp;·&nbsp; SISTEMA DE CONSULTA
+  </footer>
 
   <script>
+    // ─── Cargar años desde GitHub API ───────────────────────────────────────
+    (async function loadYears() {
+      const sel     = document.getElementById('year');
+      const dot     = document.getElementById('yearDot');
+      const msg     = document.getElementById('yearMsg');
+      const btn     = document.getElementById('searchBtn');
+
+      const REPO_API = 'https://api.github.com/repos/sucpafac/seminario/contents/';
+
+      try {
+        const res = await fetch(REPO_API, {
+          headers: { 'Accept': 'application/vnd.github.v3+json' }
+        });
+
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+        const items = await res.json();
+
+        // Filtrar solo directorios que parezcan años (solo dígitos)
+        const folders = items
+          .filter(item => item.type === 'dir' && /^\d+$/.test(item.name))
+          .map(item => item.name)
+          .sort((a, b) => b - a);   // más reciente primero
+
+        sel.innerHTML = '';
+
+        if (folders.length === 0) {
+          sel.innerHTML = '<option value="">— Sin años disponibles —</option>';
+          dot.className = 'status-dot fail';
+          msg.textContent = 'No se encontraron carpetas de años en el repositorio.';
+          return;
+        }
+
+        // Placeholder
+        const placeholder = document.createElement('option');
+        placeholder.value = '';
+        placeholder.textContent = '— Selecciona un año —';
+        placeholder.disabled = true;
+        placeholder.selected = true;
+        sel.appendChild(placeholder);
+
+        folders.forEach(year => {
+          const opt = document.createElement('option');
+          opt.value = year;
+          opt.textContent = year;
+          sel.appendChild(opt);
+        });
+
+        // Seleccionar el año más reciente por defecto
+        if (folders.length > 0) {
+          sel.value = folders[0];
+        }
+
+        dot.className = 'status-dot ok';
+        msg.textContent = `${folders.length} año${folders.length !== 1 ? 's' : ''} disponible${folders.length !== 1 ? 's' : ''} · Última actualización desde repositorio`;
+        btn.disabled = false;
+
+      } catch (err) {
+        console.warn('GitHub API error:', err);
+
+        // Fallback: años estáticos
+        const fallbackYears = ['2026', '2025', '2024'];
+        sel.innerHTML = '';
+        const placeholder = document.createElement('option');
+        placeholder.value = '';
+        placeholder.textContent = '— Selecciona un año —';
+        placeholder.disabled = true;
+        placeholder.selected = true;
+        sel.appendChild(placeholder);
+
+        fallbackYears.forEach(year => {
+          const opt = document.createElement('option');
+          opt.value = year;
+          opt.textContent = year;
+          sel.appendChild(opt);
+        });
+
+        sel.value = '2025';
+
+        dot.className = 'status-dot fail';
+        msg.textContent = 'No se pudo consultar el repositorio · Mostrando años predeterminados';
+        btn.disabled = false;
+      }
+    })();
+
+    // ─── Búsqueda de certificado ─────────────────────────────────────────────
     async function buscarCertificado(event) {
       event.preventDefault();
-      
-      const year = document.getElementById("year").value;
-      const id = document.getElementById("identificacion").value.trim();
-      const searchBtn = document.getElementById("searchBtn");
-      const loading = document.getElementById("loading");
-      const successResult = document.getElementById("successResult");
-      const errorResult = document.getElementById("errorResult");
-      const pdfFrame = document.getElementById("pdfFrame");
-      const downloadLink = document.getElementById("downloadLink");
 
-      // Ocultar resultados previos
-      successResult.style.display = "none";
-      errorResult.style.display = "none";
-      
-      // Mostrar loading
-      loading.style.display = "block";
-      searchBtn.disabled = true;
-      searchBtn.textContent = "Buscando...";
+      const year          = document.getElementById('year').value;
+      const id            = document.getElementById('identificacion').value.trim();
+      const btn           = document.getElementById('searchBtn');
+      const loadingBar    = document.getElementById('loadingBar');
+      const successResult = document.getElementById('successResult');
+      const errorResult   = document.getElementById('errorResult');
+      const pdfFrame      = document.getElementById('pdfFrame');
+      const downloadLink  = document.getElementById('downloadLink');
 
-      // Construir URL del certificado
+      if (!year || !id) return;
+
+      // Reset
+      successResult.style.display = 'none';
+      errorResult.style.display   = 'none';
+      loadingBar.classList.add('visible');
+      btn.disabled = true;
+      btn.textContent = 'Buscando…';
+
       const pdfUrl = `https://sucpafac.github.io/seminario/${year}/${id}.pdf`;
-      //const pdfUrl = `https://raw.githubusercontent.com/sucpafac/seminario/main/${year}/${id}.pdf`;
-      
+
       try {
-        // Verificar si el archivo existe
         const response = await fetch(pdfUrl, { method: 'HEAD' });
-        
+
         if (response.ok) {
-          // Archivo encontrado - mostrar éxito
-          pdfFrame.src = pdfUrl;
-          downloadLink.href = pdfUrl;
-          downloadLink.download = `Certificado_${id}_${year}.pdf`;
-          
-          successResult.style.display = "block";
-          
-          // Scroll suave hacia el resultado
-          setTimeout(() => {
-            successResult.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }, 300);
+          pdfFrame.src               = pdfUrl;
+          downloadLink.href          = pdfUrl;
+          downloadLink.download      = `Certificado_${id}_${year}.pdf`;
+          successResult.style.display = 'block';
+          setTimeout(() => successResult.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 200);
         } else {
-          // Archivo no encontrado
-          errorResult.style.display = "block";
-          
-          setTimeout(() => {
-            errorResult.scrollIntoView({ behavior: 'smooth', block: 'center' });
-          }, 300);
+          errorResult.style.display = 'block';
+          setTimeout(() => errorResult.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 200);
         }
-      } catch (error) {
-        // Error de red o servidor
-        errorResult.style.display = "block";
-        
-        setTimeout(() => {
-          errorResult.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }, 300);
+      } catch {
+        errorResult.style.display = 'block';
+        setTimeout(() => errorResult.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 200);
       } finally {
-        // Ocultar loading y restaurar botón
-        loading.style.display = "none";
-        searchBtn.disabled = false;
-        searchBtn.textContent = "Buscar Certificado";
+        loadingBar.classList.remove('visible');
+        btn.disabled = false;
+        btn.innerHTML = '&#9654;&nbsp;&nbsp;Buscar Certificado';
       }
     }
 
-    // Limpiar resultados cuando se cambie el año o ID
-    document.getElementById("year").addEventListener("change", limpiarResultados);
-    document.getElementById("identificacion").addEventListener("input", limpiarResultados);
-
-    function limpiarResultados() {
-      document.getElementById("successResult").style.display = "none";
-      document.getElementById("errorResult").style.display = "none";
-    }
-
-    // Permitir búsqueda con Enter en el campo de identificación
-    document.getElementById("identificacion").addEventListener("keypress", function(event) {
-      if (event.key === "Enter") {
-        buscarCertificado(event);
-      }
+    // Limpiar resultados al cambiar campos
+    ['year', 'identificacion'].forEach(id => {
+      document.getElementById(id).addEventListener(id === 'year' ? 'change' : 'input', () => {
+        document.getElementById('successResult').style.display = 'none';
+        document.getElementById('errorResult').style.display   = 'none';
+      });
     });
   </script>
 </body>
