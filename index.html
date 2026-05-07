@@ -7,6 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&family=Source+Sans+3:wght@300;400;600&display=swap" rel="stylesheet">
   <style>
+    /* Variables por defecto (Tema Oscuro) */
     :root {
       --navy:       #07111f;
       --navy-mid:   #0d1e33;
@@ -22,6 +23,24 @@
       --mono:       'Share Tech Mono', monospace;
       --head:       'Rajdhani', sans-serif;
       --body:       'Source Sans 3', sans-serif;
+      --bg-gradient: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(14,165,233,0.12) 0%, transparent 70%),
+                     repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(30,58,95,0.3) 40px),
+                     repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(30,58,95,0.3) 40px);
+    }
+
+    /* Variables para el Tema Claro */
+    body.light-theme {
+      --navy:       #f8fafc;
+      --navy-mid:   #f1f5f9;
+      --panel:      #ffffff;
+      --border:     #cbd5e1;
+      --accent:     #0284c7;
+      --accent-dim: #0369a1;
+      --text:       #0f172a;
+      --text-dim:   #475569;
+      --bg-gradient: radial-gradient(ellipse 80% 60% at 50% -10%, rgba(2,132,199,0.08) 0%, transparent 70%),
+                     repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(203,213,225,0.3) 40px),
+                     repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(203,213,225,0.3) 40px);
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -36,10 +55,32 @@
       align-items: center;
       justify-content: flex-start;
       padding: 24px 16px 48px;
-      background-image:
-        radial-gradient(ellipse 80% 60% at 50% -10%, rgba(14,165,233,0.12) 0%, transparent 70%),
-        repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(30,58,95,0.3) 40px),
-        repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(30,58,95,0.3) 40px);
+      background-image: var(--bg-gradient);
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+
+    /* ── Botón Tema ── */
+    .theme-toggle-btn {
+      position: absolute;
+      top: 16px;
+      right: 16px;
+      background: var(--panel);
+      color: var(--text);
+      border: 1px solid var(--border);
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-family: var(--head);
+      font-size: 14px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+      z-index: 100;
+    }
+    .theme-toggle-btn:hover {
+      border-color: var(--accent);
     }
 
     /* ── Header ── */
@@ -48,6 +89,7 @@
       max-width: 680px;
       text-align: center;
       margin-bottom: 32px;
+      margin-top: 20px;
       animation: fadeDown 0.6s ease both;
     }
 
@@ -62,8 +104,7 @@
     .logo-wrap img {
       height: 64px;
       width: auto;
-      filter: brightness(0) invert(1);
-      opacity: 0.9;
+      opacity: 1; /* Eliminados los filtros para mantener el color original */
     }
 
     .site-title {
@@ -71,7 +112,7 @@
       font-size: clamp(22px, 5vw, 32px);
       font-weight: 700;
       letter-spacing: 0.08em;
-      color: #fff;
+      color: var(--text);
       line-height: 1.15;
     }
 
@@ -111,13 +152,13 @@
       padding: clamp(24px, 5vw, 40px);
       box-shadow:
         0 0 0 1px rgba(14,165,233,0.06),
-        0 20px 60px rgba(0,0,0,0.5),
+        0 20px 60px rgba(0,0,0,0.15),
         inset 0 1px 0 rgba(255,255,255,0.04);
       position: relative;
       animation: fadeUp 0.7s ease both;
+      transition: background-color 0.3s ease, border-color 0.3s ease;
     }
 
-    /* Corner brackets */
     .card::before, .card::after {
       content: '';
       position: absolute;
@@ -170,7 +211,7 @@
       border: 1px solid var(--border);
       border-radius: 3px;
       outline: none;
-      transition: border-color 0.2s, box-shadow 0.2s;
+      transition: border-color 0.2s, box-shadow 0.2s, background-color 0.3s;
       appearance: none;
       -webkit-appearance: none;
     }
@@ -194,8 +235,9 @@
     }
 
     input[type="text"]::placeholder {
-      color: #3d5269;
+      color: var(--text-dim);
       font-family: var(--mono);
+      opacity: 0.7;
     }
 
     /* ── Status strip ── */
@@ -389,7 +431,7 @@
       margin-top: 32px;
       font-family: var(--mono);
       font-size: 11px;
-      color: #2d4a63;
+      color: var(--text-dim);
       letter-spacing: 0.1em;
       text-align: center;
       animation: fadeUp 0.9s ease both;
@@ -403,6 +445,10 @@
   </style>
 </head>
 <body>
+
+  <button id="themeToggleBtn" class="theme-toggle-btn" onclick="toggleTheme()">
+    ☀️ Tema Claro
+  </button>
 
   <header class="site-header">
     <div class="logo-wrap">
@@ -419,24 +465,21 @@
 
     <form id="certForm" onsubmit="buscarCertificado(event)" novalidate>
 
-      <!-- Year -->
       <div class="field-group">
-        <label for="year">
+        <label for="seminario">
           <span class="label-num">01</span>
-          Año del Seminario
+          Nombre del Seminario
         </label>
-        <select id="year" required>
-          <option value="">— Cargando años disponibles… —</option>
+        <select id="seminario" required>
+          <option value="">— Cargando seminarios disponibles… —</option>
         </select>
       </div>
 
-      <!-- Status strip for year load -->
-      <div class="status-strip" id="yearStatus">
-        <span class="status-dot loading-dot" id="yearDot"></span>
-        <span id="yearMsg">Consultando repositorio…</span>
+      <div class="status-strip" id="repoStatus">
+        <span class="status-dot loading-dot" id="repoDot"></span>
+        <span id="repoMsg">Consultando repositorio…</span>
       </div>
 
-      <!-- ID -->
       <div class="field-group">
         <label for="identificacion">
           <span class="label-num">02</span>
@@ -454,12 +497,10 @@
       </button>
     </form>
 
-    <!-- Loading bar -->
     <div class="loading-bar" id="loadingBar">
       <div class="loading-bar-fill"></div>
     </div>
 
-    <!-- Success result -->
     <div class="result success" id="successResult">
       <div class="result-header">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
@@ -476,7 +517,6 @@
       </div>
     </div>
 
-    <!-- Error result -->
     <div class="result error" id="errorResult">
       <div class="result-header">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
@@ -488,8 +528,8 @@
         </p>
         <ul class="error-list">
           <li>Que el número de identificación sea correcto</li>
-          <li>Que hayas seleccionado el año correcto</li>
-          <li>Que hayas completado el seminario en el año seleccionado</li>
+          <li>Que hayas seleccionado el seminario correcto</li>
+          <li>Que hayas completado el seminario en la fecha seleccionada</li>
           <li>Si el problema persiste, contacta al administrador</li>
         </ul>
       </div>
@@ -502,11 +542,24 @@
   </footer>
 
   <script>
-    // ─── Cargar años desde GitHub API ───────────────────────────────────────
-    (async function loadYears() {
-      const sel     = document.getElementById('year');
-      const dot     = document.getElementById('yearDot');
-      const msg     = document.getElementById('yearMsg');
+    // ─── Lógica Tema Claro/Oscuro ───────────────────────────────────────────
+    function toggleTheme() {
+      const body = document.body;
+      const btn = document.getElementById('themeToggleBtn');
+      body.classList.toggle('light-theme');
+      
+      if (body.classList.contains('light-theme')) {
+        btn.innerHTML = '🌙 Tema Oscuro';
+      } else {
+        btn.innerHTML = '☀️ Tema Claro';
+      }
+    }
+
+    // ─── Cargar seminarios desde GitHub API ─────────────────────────────────
+    (async function loadSeminars() {
+      const sel     = document.getElementById('seminario');
+      const dot     = document.getElementById('repoDot');
+      const msg     = document.getElementById('repoMsg');
       const btn     = document.getElementById('searchBtn');
 
       const REPO_API = 'https://api.github.com/repos/sucpafac/seminario/contents/';
@@ -520,69 +573,68 @@
 
         const items = await res.json();
 
-        // Filtrar solo directorios que parezcan años (solo dígitos)
+        // Filtramos directorios y EXCLUIMOS los que inician con guion "-"
         const folders = items
-          .filter(item => item.type === 'dir' && /^\d+$/.test(item.name))
+          .filter(item => item.type === 'dir' && !item.name.startsWith('-'))
           .map(item => item.name)
-          .sort((a, b) => b - a);   // más reciente primero
+          .sort((a, b) => b.localeCompare(a)); // Orden alfabético inverso
 
         sel.innerHTML = '';
 
         if (folders.length === 0) {
-          sel.innerHTML = '<option value="">— Sin años disponibles —</option>';
+          sel.innerHTML = '<option value="">— Sin seminarios disponibles —</option>';
           dot.className = 'status-dot fail';
-          msg.textContent = 'No se encontraron carpetas de años en el repositorio.';
+          msg.textContent = 'No se encontraron carpetas válidas en el repositorio.';
           return;
         }
 
         // Placeholder
         const placeholder = document.createElement('option');
         placeholder.value = '';
-        placeholder.textContent = '— Selecciona un año —';
+        placeholder.textContent = '— Selecciona un seminario —';
         placeholder.disabled = true;
         placeholder.selected = true;
         sel.appendChild(placeholder);
 
-        folders.forEach(year => {
+        folders.forEach(seminar => {
           const opt = document.createElement('option');
-          opt.value = year;
-          opt.textContent = year;
+          opt.value = seminar;
+          opt.textContent = seminar;
           sel.appendChild(opt);
         });
 
-        // Seleccionar el año más reciente por defecto
         if (folders.length > 0) {
           sel.value = folders[0];
         }
 
         dot.className = 'status-dot ok';
-        msg.textContent = `${folders.length} año${folders.length !== 1 ? 's' : ''} disponible${folders.length !== 1 ? 's' : ''} · Última actualización desde repositorio`;
+        msg.textContent = `${folders.length} opción(es) disponible(s) · Última actualización desde repositorio`;
         btn.disabled = false;
 
       } catch (err) {
         console.warn('GitHub API error:', err);
 
-        // Fallback: años estáticos
-        const fallbackYears = ['2026', '2025', '2024'];
+        // Fallback: carpetas estáticas por si falla la API
+        const fallbackSeminars = ['2026', '2025', '2024'];
         sel.innerHTML = '';
         const placeholder = document.createElement('option');
         placeholder.value = '';
-        placeholder.textContent = '— Selecciona un año —';
+        placeholder.textContent = '— Selecciona un seminario —';
         placeholder.disabled = true;
         placeholder.selected = true;
         sel.appendChild(placeholder);
 
-        fallbackYears.forEach(year => {
+        fallbackSeminars.forEach(seminar => {
           const opt = document.createElement('option');
-          opt.value = year;
-          opt.textContent = year;
+          opt.value = seminar;
+          opt.textContent = seminar;
           sel.appendChild(opt);
         });
 
-        sel.value = '2025';
+        sel.value = fallbackSeminars[0];
 
         dot.className = 'status-dot fail';
-        msg.textContent = 'No se pudo consultar el repositorio · Mostrando años predeterminados';
+        msg.textContent = 'No se pudo consultar el repositorio · Mostrando opciones predeterminadas';
         btn.disabled = false;
       }
     })();
@@ -591,7 +643,7 @@
     async function buscarCertificado(event) {
       event.preventDefault();
 
-      const year          = document.getElementById('year').value;
+      const seminario     = document.getElementById('seminario').value;
       const id            = document.getElementById('identificacion').value.trim();
       const btn           = document.getElementById('searchBtn');
       const loadingBar    = document.getElementById('loadingBar');
@@ -600,7 +652,7 @@
       const pdfFrame      = document.getElementById('pdfFrame');
       const downloadLink  = document.getElementById('downloadLink');
 
-      if (!year || !id) return;
+      if (!seminario || !id) return;
 
       // Reset
       successResult.style.display = 'none';
@@ -609,7 +661,9 @@
       btn.disabled = true;
       btn.textContent = 'Buscando…';
 
-      const pdfUrl = `https://sucpafac.github.io/seminario/${year}/${id}.pdf`;
+      // encodeURIComponent soluciona el problema de los espacios en la URL (ej: "Seminario UAS 2026")
+      const encodedSeminario = encodeURIComponent(seminario);
+      const pdfUrl = `https://sucpafac.github.io/seminario/${encodedSeminario}/${id}.pdf`;
 
       try {
         const response = await fetch(pdfUrl, { method: 'HEAD' });
@@ -617,7 +671,7 @@
         if (response.ok) {
           pdfFrame.src               = pdfUrl;
           downloadLink.href          = pdfUrl;
-          downloadLink.download      = `Certificado_${id}_${year}.pdf`;
+          downloadLink.download      = `Certificado_${id}_${seminario}.pdf`;
           successResult.style.display = 'block';
           setTimeout(() => successResult.scrollIntoView({ behavior: 'smooth', block: 'nearest' }), 200);
         } else {
@@ -635,8 +689,8 @@
     }
 
     // Limpiar resultados al cambiar campos
-    ['year', 'identificacion'].forEach(id => {
-      document.getElementById(id).addEventListener(id === 'year' ? 'change' : 'input', () => {
+    ['seminario', 'identificacion'].forEach(id => {
+      document.getElementById(id).addEventListener(id === 'seminario' ? 'change' : 'input', () => {
         document.getElementById('successResult').style.display = 'none';
         document.getElementById('errorResult').style.display   = 'none';
       });
