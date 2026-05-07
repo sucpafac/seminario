@@ -1,10 +1,10 @@
+<!--https://sucpafac.github.io/seminario/-->
 <!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Portal de Certificados - Seminario Básico de Certificación Aeronáutica</title>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/2.16.105/pdf.min.js"></script>
   <style>
     * {
       box-sizing: border-box;
@@ -149,54 +149,10 @@
       overflow: hidden;
     }
 
-    .pdf-canvas-container {
-      background: #f7fafc;
-      padding: 20px;
-      text-align: center;
-      min-height: 400px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .pdf-canvas {
-      max-width: 100%;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      border-radius: 8px;
-    }
-
-    .pdf-navigation {
-      margin-top: 15px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-    }
-
-    .pdf-nav-btn {
-      background: #667eea;
-      color: white;
+    .pdf-viewer iframe {
+      width: 100%;
+      height: 500px;
       border: none;
-      padding: 8px 12px;
-      border-radius: 5px;
-      cursor: pointer;
-      font-size: 14px;
-    }
-
-    .pdf-nav-btn:hover {
-      background: #5a67d8;
-    }
-
-    .pdf-nav-btn:disabled {
-      background: #a0aec0;
-      cursor: not-allowed;
-    }
-
-    .pdf-info {
-      margin: 0 15px;
-      font-weight: 600;
-      color: #4a5568;
     }
 
     .download-btn {
@@ -257,8 +213,7 @@
 </head>
 <body>
   <div class="container">
-    <img src="log_aaaes.png" alt="Logo AAAES" class="logo" style="margin-top: 0; margin-bottom: 30px;">
-    
+    <img src="log_aaaes.png" alt="Logo AAAES" class="logo">
     <h1>Portal de Certificados</h1>
     <h2>Seminario Básico de Certificación Aeronáutica</h2>
     
@@ -292,15 +247,7 @@
     <div class="result-section success" id="successResult">
       <p class="success-message">✅ ¡Certificado encontrado!</p>
       <div class="pdf-viewer" id="pdfViewer">
-        <div class="pdf-canvas-container" id="pdfContainer">
-          <div style="font-size: 48px; margin-bottom: 10px;">📄</div>
-          <p>Cargando vista previa...</p>
-        </div>
-        <div class="pdf-navigation" id="pdfNavigation" style="display: none;">
-          <button class="pdf-nav-btn" onclick="previousPage()" id="prevBtn">← Anterior</button>
-          <span class="pdf-info">Página <span id="pageNum">1</span> de <span id="totalPages">1</span></span>
-          <button class="pdf-nav-btn" onclick="nextPage()" id="nextBtn">Siguiente →</button>
-        </div>
+        <iframe id="pdfFrame" src="" title="Vista previa del certificado"></iframe>
       </div>
       <a href="" class="download-btn" id="downloadLink" download>
         📥 Descargar Certificado
@@ -319,23 +266,9 @@
       <p>Si el problema persiste, contacta al administrador.</p>
     </div>
 
-    <img src="log_aaaes.png" alt="Logo AAAES" class="logo">
   </div>
 
   <script>
-    // Variables globales para PDF.js
-    let pdfDoc = null;
-    let pageNum = 1;
-    let pageRendering = false;
-    let pageNumPending = null;
-    let scale = 1.2;
-    let canvas = null;
-    let ctx = null;
-    let currentPdfUrl = '';
-
-    // Configurar PDF.js worker
-    pdfjsLib.GlobalWorkerOptions.workerSrc = '//mozilla.github.io/pdf.js/build/pdf.worker.js';
-
     async function buscarCertificado(event) {
       event.preventDefault();
       
@@ -345,6 +278,7 @@
       const loading = document.getElementById("loading");
       const successResult = document.getElementById("successResult");
       const errorResult = document.getElementById("errorResult");
+      const pdfFrame = document.getElementById("pdfFrame");
       const downloadLink = document.getElementById("downloadLink");
 
       // Ocultar resultados previos
@@ -356,20 +290,20 @@
       searchBtn.disabled = true;
       searchBtn.textContent = "Buscando...";
 
-      // Construir URL del certificado (usando github.io)
+      // Construir URL del certificado
       const pdfUrl = `https://sucpafac.github.io/seminario/${year}/${id}.pdf`;
-      currentPdfUrl = pdfUrl;
+      //const pdfUrl = `https://raw.githubusercontent.com/sucpafac/seminario/main/${year}/${id}.pdf`;
       
       try {
         // Verificar si el archivo existe
         const response = await fetch(pdfUrl, { method: 'HEAD' });
         
         if (response.ok) {
-          // Archivo encontrado - cargar PDF
+          // Archivo encontrado - mostrar éxito
+          pdfFrame.src = pdfUrl;
           downloadLink.href = pdfUrl;
           downloadLink.download = `Certificado_${id}_${year}.pdf`;
           
-          await cargarPDF(pdfUrl);
           successResult.style.display = "block";
           
           // Scroll suave hacia el resultado
@@ -399,115 +333,6 @@
       }
     }
 
-    async function cargarPDF(url) {
-      try {
-        const container = document.getElementById("pdfContainer");
-        container.innerHTML = '<div style="font-size: 48px; margin-bottom: 10px;">📄</div><p>Cargando PDF...</p>';
-        
-        // Cargar el PDF
-        const loadingTask = pdfjsLib.getDocument(url);
-        pdfDoc = await loadingTask.promise;
-        
-        // Crear canvas
-        canvas = document.createElement('canvas');
-        canvas.className = 'pdf-canvas';
-        ctx = canvas.getContext('2d');
-        
-        container.innerHTML = '';
-        container.appendChild(canvas);
-        
-        // Mostrar primera página
-        pageNum = 1;
-        await renderPage(pageNum);
-        
-        // Mostrar navegación si hay más de una página
-        if (pdfDoc.numPages > 1) {
-          document.getElementById("pdfNavigation").style.display = "flex";
-          document.getElementById("totalPages").textContent = pdfDoc.numPages;
-          updateNavigationButtons();
-        } else {
-          document.getElementById("pdfNavigation").style.display = "none";
-        }
-        
-      } catch (error) {
-        console.error('Error cargando PDF:', error);
-        const container = document.getElementById("pdfContainer");
-        container.innerHTML = `
-          <div style="font-size: 48px; margin-bottom: 10px; color: #e53e3e;">⚠️</div>
-          <p style="color: #e53e3e;">Error al cargar la vista previa del PDF</p>
-          <p style="color: #718096; font-size: 14px;">Puedes descargar el archivo directamente</p>
-        `;
-      }
-    }
-
-    async function renderPage(num) {
-      pageRendering = true;
-      
-      try {
-        const page = await pdfDoc.getPage(num);
-        const viewport = page.getViewport({ scale: scale });
-        
-        // Ajustar canvas
-        canvas.height = viewport.height;
-        canvas.width = viewport.width;
-        
-        // Ajustar escala para pantallas pequeñas
-        const containerWidth = document.getElementById("pdfContainer").offsetWidth - 40;
-        if (viewport.width > containerWidth) {
-          scale = containerWidth / viewport.width;
-          const newViewport = page.getViewport({ scale: scale });
-          canvas.height = newViewport.height;
-          canvas.width = newViewport.width;
-        }
-        
-        const renderContext = {
-          canvasContext: ctx,
-          viewport: page.getViewport({ scale: scale })
-        };
-        
-        await page.render(renderContext).promise;
-        
-        pageRendering = false;
-        if (pageNumPending !== null) {
-          renderPage(pageNumPending);
-          pageNumPending = null;
-        }
-        
-        // Actualizar número de página
-        document.getElementById("pageNum").textContent = num;
-        updateNavigationButtons();
-        
-      } catch (error) {
-        console.error('Error renderizando página:', error);
-        pageRendering = false;
-      }
-    }
-
-    function queueRenderPage(num) {
-      if (pageRendering) {
-        pageNumPending = num;
-      } else {
-        renderPage(num);
-      }
-    }
-
-    function previousPage() {
-      if (pageNum <= 1) return;
-      pageNum--;
-      queueRenderPage(pageNum);
-    }
-
-    function nextPage() {
-      if (pageNum >= pdfDoc.numPages) return;
-      pageNum++;
-      queueRenderPage(pageNum);
-    }
-
-    function updateNavigationButtons() {
-      document.getElementById("prevBtn").disabled = (pageNum <= 1);
-      document.getElementById("nextBtn").disabled = (pageNum >= pdfDoc.numPages);
-    }
-
     // Limpiar resultados cuando se cambie el año o ID
     document.getElementById("year").addEventListener("change", limpiarResultados);
     document.getElementById("identificacion").addEventListener("input", limpiarResultados);
@@ -515,10 +340,6 @@
     function limpiarResultados() {
       document.getElementById("successResult").style.display = "none";
       document.getElementById("errorResult").style.display = "none";
-      document.getElementById("pdfNavigation").style.display = "none";
-      currentPdfUrl = '';
-      pdfDoc = null;
-      pageNum = 1;
     }
 
     // Permitir búsqueda con Enter en el campo de identificación
