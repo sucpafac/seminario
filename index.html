@@ -599,7 +599,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script>
     // ─── Configuración URL Estática Base ─────────────────────────────────────
-    const BASE_URL = 'https://sucpafac.github.io/seminario/';
+    const BASE_URL = 'https://secae.github.io/seminario/';
     let todosLosSeminarios = [];
     let seminarioSeleccionado = "";
     let modoBusquedaActual = "pdf"; 
@@ -699,7 +699,7 @@
       const dot = document.getElementById('repoDot');
       const msg = document.getElementById('repoMsg');
       const btn = document.getElementById('searchBtn');
-      const REPO_API = 'https://api.github.com/repos/sucpafac/seminario/contents/';
+      const REPO_API = 'https://api.github.com/repos/secae/seminario/contents/';
 
       try {
         const res = await fetch(REPO_API, {
