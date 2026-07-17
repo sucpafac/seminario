@@ -683,7 +683,7 @@
         const res = await fetch(csvUrl);
         if (res.ok) {
           modoBusquedaActual = "csv";
-          // El mensaje detallado del desfase ahora se ejecuta de forma precisa al procesar el archivo CSV
+          // La inspección pormenorizada del CSV ahora se despliega de forma dinámica al procesar el motor
         } else {
           modoBusquedaActual = "pdf";
           console.log(`[Sistema AAAES] Modo de búsqueda por diploma PDF según el nombre de seminario seleccionado: "${nombre}"`);
@@ -740,11 +740,12 @@
       }
     })();
 
-    // ─── Sanitización y Normalización del Parser CSV ─────────────────────────
+    // ─── Sanitización y Normalización Avanzada del Parser CSV ───────────────
     function normalizarId(str) {
       return (str || '').toString().trim().replace(/[^0-9A-Za-z]/g, '').toUpperCase();
     }
 
+    // Procesa cadenas removiendo retornos de carro invisibles (\r)
     function parsearCSV(texto) {
       const lineas = texto.split(/\r?\n/).map(l => l.trim()).filter(l => l.length > 0);
       return lineas.map(linea => {
@@ -754,7 +755,7 @@
       });
     }
 
-    // ─── Motor Gráfico para el Caso 2 ────────────────────────────────────────
+    // ─── Motor Gráfico para el Caso 2 (Imagen + CSV) ─────────────────────────
     async function generarDiplomaDesdeImagen(seminario, id) {
       const encodedSeminario = encodeURIComponent(seminario);
       const csvUrl = `${BASE_URL}${encodedSeminario}/nombres.csv`;
@@ -768,24 +769,33 @@
       if (filas.length === 0) return null;
 
       let desfaseGlobalY = 0;
-      let indiceInicioAlumnos = 0;
+      let filaConfiguracion = null;
 
-      if (filas[0].length >= 2 && filas[0][0].toLowerCase().includes('desfase')) {
-        const valorDesfase = parseInt(filas[0][1], 10);
-        if (!isNaN(valorDesfase)) {
-          desfaseGlobalY = valorDesfase;
+      // Escaneo Dinámico Inteligente: Busca el desfase en todo el archivo, no solo en la primera línea
+      for (let i = 0; i < filas.length; i++) {
+        if (filas[i].length >= 2 && filas[i][0].toLowerCase().includes('desfase')) {
+          filaConfiguracion = filas[i];
+          const valorDesfase = parseInt(filas[i][1], 10);
+          if (!isNaN(valorDesfase)) desfaseGlobalY = valorDesfase;
+          break;
         }
-        indiceInicioAlumnos = 1;
       }
 
-      // Se imprime de manera precisa la línea solicitada exponiendo los elementos de la cabecera del CSV
-      console.log(`[Sistema AAAES] Modo de búsqueda por lista CSV según el nombre de seminario seleccionado: "${seminario}" (Desfase Vertical Configurado: ${filas[0][0]} ${filas[0][1]} ${desfaseGlobalY}px)`);
+      // Si no se encontró explícitamente la palabra 'desfase', mapea los literales de la primera línea real de depuración
+      const labelCol1 = filaConfiguracion ? filaConfiguracion[0] : filas[0][0];
+      const labelCol2 = filaConfiguracion ? filaConfiguracion[1] : filas[0][1];
+
+      console.log(`[Sistema AAAES] Modo de búsqueda por lista CSV según el nombre de seminario seleccionado: "${seminario}" (Desfase Vertical Configurado: ${labelCol1} ${labelCol2} ${desfaseGlobalY}px)`);
 
       const idBuscado = normalizarId(id);
       let registro = null;
 
-      for (let i = indiceInicioAlumnos; i < filas.length; i++) {
+      // Buscar al alumno omitiendo las filas de control
+      for (let i = 0; i < filas.length; i++) {
         const fila = filas[i];
+        if (fila[0].toLowerCase().includes('desfase') || fila[0].toLowerCase().includes('cedula') || fila[0].toLowerCase().includes('identificacion')) {
+          continue; // Evita falsos positivos con cabeceras o filas de configuración
+        }
         if (fila.length >= 1 && normalizarId(fila[0]) === idBuscado) {
           registro = fila;
           break;
@@ -827,8 +837,9 @@
       ctx.font = `700 ${nombreSize}px 'Rajdhani', Arial, sans-serif`;
       ctx.fillText(nombre.toUpperCase(), cx, cy);
 
+      // Espaciado interlineal optimizado exactamente a 0.8 como fue requerido
       ctx.font = `400 ${cedulaSize}px 'Share Tech Mono', monospace`;
-      ctx.fillText(`C.C. ${cedula}`, cx, cy + Math.round(nombreSize * 1.10));
+      ctx.fillText(`C.C. ${cedula}`, cx, cy + Math.round(nombreSize * 0.8));
 
       const dataUrl = canvas.toDataURL('image/jpeg', 0.95);
 
